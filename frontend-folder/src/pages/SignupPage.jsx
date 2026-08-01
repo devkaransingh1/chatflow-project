@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import AuthForm from '../components/AuthForm'
+import AnimatedBackground from '../components/AnimatedBackground'
 import './AuthPage.css'
 
 export default function SignupPage() {
   return (
     <div className="auth-page">
+      <AnimatedBackground />
       <div className="auth-bg-orb auth-bg-orb-1" />
       <div className="auth-bg-orb auth-bg-orb-2" />
 

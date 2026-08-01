@@ -10,6 +10,7 @@ export default function AuthForm({ mode }) {
     username: '',
     email: '',
     password: '',
+    confirmPassword: '',
   })
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({})
@@ -37,6 +38,13 @@ export default function AuthForm({ mode }) {
       errs.password = 'Password is required'
     } else if (formData.password.length < 6) {
       errs.password = 'At least 6 characters'
+    }
+    if (!isLogin) {
+      if (!formData.confirmPassword) {
+        errs.confirmPassword = 'Confirm password is required'
+      } else if (formData.password !== formData.confirmPassword) {
+        errs.confirmPassword = 'Passwords do not match'
+      }
     }
     return errs
   }
@@ -185,7 +193,30 @@ export default function AuthForm({ mode }) {
         </div>
         {errors.password && <span className="auth-error">{errors.password}</span>}
       </div>
-     
+
+      {!isLogin && (
+        <div className="auth-field animate-fade-in-up delay-4">
+          <label className="auth-label" htmlFor="confirmPassword">Confirm Password</label>
+          <div className={`auth-input-wrapper ${errors.confirmPassword ? 'auth-input-error' : ''}`}>
+            <span className="auth-input-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+            </span>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showPassword ? 'text' : 'password'}
+              className="auth-input"
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              autoComplete="new-password"
+            />
+          </div>
+          {errors.confirmPassword && <span className="auth-error">{errors.confirmPassword}</span>}
+        </div>
+      )}
 
       {isLogin && (
         <div className="auth-forgot animate-fade-in-up delay-3">
@@ -195,7 +226,7 @@ export default function AuthForm({ mode }) {
 
       <button
         type="submit"
-        className="auth-btn auth-btn-primary animate-fade-in-up delay-4"
+        className={`auth-btn auth-btn-primary animate-fade-in-up ${isLogin ? 'delay-4' : 'delay-5'}`}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -207,7 +238,7 @@ export default function AuthForm({ mode }) {
         )}
       </button>
 
-      <div className="auth-divider animate-fade-in-up delay-5">
+      <div className={`auth-divider animate-fade-in-up ${isLogin ? 'delay-5' : 'delay-6'}`}>
         <span className="auth-divider-line" />
         <span className="auth-divider-text">{isLogin ? 'New here?' : 'Already have an account?'}</span>
         <span className="auth-divider-line" />
@@ -215,7 +246,7 @@ export default function AuthForm({ mode }) {
 
       <Link
         to={isLogin ? '/signup' : '/login'}
-        className="auth-btn auth-btn-outline animate-fade-in-up delay-6"
+        className={`auth-btn auth-btn-outline animate-fade-in-up ${isLogin ? 'delay-6' : 'delay-7'}`}
       >
         {isLogin ? 'Create an Account' : 'Sign In Instead'}
       </Link>
