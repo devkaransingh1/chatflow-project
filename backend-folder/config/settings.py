@@ -124,3 +124,10 @@ STATIC_URL = 'static/'
 
 # this line tells django "Don't use Django's default User model. Use the User model we're going to create inside the users app."
 AUTH_USER_MODEL = 'users.user'
+
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
