@@ -12,25 +12,36 @@ export default function ChatPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showSidebar, setShowSidebar] = useState(true)
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('chatflow_current_user'))
-    if (!user) {
-      navigate('/login')
-      return
-    }
-    setCurrentUser(user)
+useEffect(() => {
+  const token = localStorage.getItem('access_token')
 
-    const allUsers = JSON.parse(localStorage.getItem('chatflow_users') || '[]')
-    const otherUsers = allUsers.filter(u => u.email !== user.email)
-    setContacts(otherUsers)
+  if (!token) {
+    navigate('/login')
+    return
+  }
 
-    if (otherUsers.length > 0) {
-      setActiveChat(otherUsers[0].id)
-    }
+  // Temporary user object until we connect
+  // the chat page to the Django API.
+  setCurrentUser({
+    username: 'You',
+  })
 
-    const storedMsgs = JSON.parse(localStorage.getItem('chatflow_messages') || '{}')
-    setMessages(storedMsgs)
-  }, [navigate])
+  const allUsers = JSON.parse(
+    localStorage.getItem('chatflow_users') || '[]'
+  )
+
+  setContacts(allUsers)
+
+  if (allUsers.length > 0) {
+    setActiveChat(allUsers[0].id)
+  }
+
+  const storedMsgs = JSON.parse(
+    localStorage.getItem('chatflow_messages') || '{}'
+  )
+
+  setMessages(storedMsgs)
+}, [navigate])
 
   const activeContact = contacts.find(c => c.id === activeChat)
   const chatMessages = activeChat ? (messages[activeChat] || []) : []
@@ -80,9 +91,10 @@ export default function ChatPage() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('chatflow_current_user')
-    navigate('/')
-  }
+  localStorage.removeItem('access_token')
+  localStorage.removeItem('refresh_token')
+  navigate('/login')
+}
 
   return (
     <div className="chat-page">
