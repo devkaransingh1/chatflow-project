@@ -22,7 +22,7 @@ export default function AnimatedBackground() {
 
     window.addEventListener('resize', handleResize);
 
-    // Particle setup
+  
     const particleCount = Math.min(Math.floor((width * height) / 12000), 80);
     const particles = [];
     const mouse = { x: null, y: null, radius: 150 };
