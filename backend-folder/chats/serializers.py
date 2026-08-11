@@ -60,3 +60,9 @@ class ChatRequestSerializer(serializers.ModelSerializer):
             receiver=receiver,
             **validated_data
         )
+
+
+class ContactSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.EmailField()
+    is_online = serializers.BooleanField()
