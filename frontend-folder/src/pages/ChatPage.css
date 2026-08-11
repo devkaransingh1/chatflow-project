@@ -4,14 +4,14 @@
 
 /* ─── variables ─── */
 :root {
-  --tg-bg-dark: #0e1621;
-  --tg-bg-sidebar: #17212b;
+  --tg-bg-dark: #000307;
+  --tg-bg-sidebar: #000000;
   --tg-bg-info: #17212b;
   --tg-bg-input: #242f3d;
   --tg-bg-hover: #202b36;
   --tg-bg-active: #2b5278;
-  --tg-bg-msg-received: #182533;
-  --tg-bg-msg-sent: #2b5278;
+  --tg-bg-msg-received: #575555;
+  --tg-bg-msg-sent: #730404;
   --tg-bg-search: #242f3d;
   --tg-bg-reaction: rgba(255, 255, 255, 0.08);
 
@@ -44,7 +44,9 @@
   width: 100vw;
   background: var(--tg-bg-dark);
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
   color: var(--tg-text-primary);
 }
 
@@ -71,7 +73,9 @@
 }
 
 @keyframes tg-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -449,8 +453,16 @@
   background: var(--tg-bg-dark);
   /* subtle pattern */
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(42, 67, 101, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(42, 67, 101, 0.1) 0%, transparent 50%);
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(42, 67, 101, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(42, 67, 101, 0.1) 0%,
+      transparent 50%
+    );
 }
 
 .tg-messages-empty {
@@ -489,8 +501,14 @@
 }
 
 @keyframes tg-msg-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .tg-msg-received {
@@ -619,8 +637,14 @@
 }
 
 @keyframes tg-dot-bounce {
-  0%, 60%, 100% { opacity: 0.3; }
-  30% { opacity: 1; }
+  0%,
+  60%,
+  100% {
+    opacity: 0.3;
+  }
+  30% {
+    opacity: 1;
+  }
 }
 
 /* ─── message input ─── */
@@ -721,8 +745,14 @@
 }
 
 @keyframes tg-slide-in {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .tg-info-header {
@@ -955,7 +985,7 @@
 }
 
 .tg-toggle-slider::before {
-  content: '';
+  content: "";
   position: absolute;
   height: 18px;
   width: 18px;
