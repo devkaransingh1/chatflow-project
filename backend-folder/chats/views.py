@@ -1,9 +1,11 @@
 from django.shortcuts import render
-
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import ChatRequest
 # Create your views here.
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-
 from .models import ChatRequest
 from .serializers import ChatRequestSerializer
 
@@ -17,13 +19,6 @@ class SendChatRequestView(generics.CreateAPIView):
             sender=self.request.user
         )
 
-
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-
-from .models import ChatRequest
-from .serializers import ContactSerializer
 
 
 class ContactListView(APIView):
