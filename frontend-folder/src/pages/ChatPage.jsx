@@ -3,196 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { getCurrentUser, logout } from '../api'
 import './ChatPage.css'
 
-/* ─── mock data matching the screenshot ─── */
-const MOCK_CONVERSATIONS = [
-  {
-    id: 'pinned-1',
-    name: 'Emilia',
-    avatar: '🌟',
-    color: '#e91e8a',
-    lastMsg: 'Sent images',
-    time: '16:14',
-    pinned: true,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'group-designers',
-    name: 'Designers',
-    avatar: '🎨',
-    color: '#7c4dff',
-    lastMsg: 'Sasha is typing...',
-    time: '16:09',
-    pinned: true,
-    online: true,
-    unread: 0,
-    type: 'group',
-    memberCount: 56,
-    onlineCount: 28,
-    members: [
-      { id: 'm1', name: 'Sophia Madison', avatar: '👩', color: '#e91e63' },
-      { id: 'm2', name: 'Lucas West', avatar: '👨', color: '#2196f3' },
-      { id: 'm3', name: 'William Adams', avatar: '🧑', color: '#ff9800' },
-      { id: 'm4', name: 'Emma Gray', avatar: '👩‍💻', color: '#9c27b0' },
-    ],
-    attachments: {
-      media: { count: 974, size: '687 MB' },
-      files: { count: 309, size: '1.3 GB' },
-      links: { count: 1056, size: '3.4 GB' },
-      other: { count: 709, size: '4.6 GB' },
-    },
-  },
-  {
-    id: 'dm-mariam',
-    name: 'Mariam',
-    avatar: '🎧',
-    color: '#00bcd4',
-    lastMsg: '🎙 Voice message (00:56)',
-    time: '15:21',
-    pinned: true,
-    online: true,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-anastasia',
-    name: 'Anastasia',
-    avatar: '🦋',
-    color: '#8bc34a',
-    lastMsg: 'Good luck!',
-    time: '15:20',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-george',
-    name: 'George A.',
-    avatar: '🏄',
-    color: '#ff5722',
-    lastMsg: 'Missed call',
-    lastMsgType: 'missed-call',
-    time: '15:20',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-david',
-    name: 'David Jonson',
-    avatar: '🎯',
-    color: '#3f51b5',
-    lastMsg: 'Thank you',
-    time: '13:33',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-lili',
-    name: 'Lili, Sasha',
-    avatar: '🌸',
-    color: '#e91e63',
-    lastMsg: 'Lili, Mariam 😊',
-    time: '13:04',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-nickolas',
-    name: 'Nickolas',
-    avatar: '🎮',
-    color: '#009688',
-    lastMsg: 'Hello Mariam 👋 please check',
-    time: '13:01',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-ithan',
-    name: 'Ithan',
-    avatar: '⚡',
-    color: '#ffc107',
-    lastMsg: 'Missed call',
-    lastMsgType: 'missed-call',
-    time: '12:51',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-  {
-    id: 'dm-nick',
-    name: 'Nick Peele',
-    avatar: '🎬',
-    color: '#795548',
-    lastMsg: 'https://www.youtube.com/wat...',
-    time: '10:09',
-    pinned: false,
-    online: false,
-    unread: 0,
-    type: 'direct',
-  },
-]
+/* ─── No mock data — only real registered users ─── */
 
-const MOCK_MESSAGES = {
-  'group-designers': [
-    {
-      id: 'msg1',
-      sender: 'me',
-      senderName: 'You',
-      text: 'Hello, I have new cool idea, are u ready guys? 👋',
-      time: '16:04',
-      reactions: [
-        { emoji: '👍', count: 1 },
-        { emoji: '❤️', count: 9 },
-      ],
-    },
-    {
-      id: 'msg2',
-      sender: 'anna',
-      senderName: 'Anna Ellis',
-      text: 'Hi guys! 👋 I am ready 💪',
-      time: '16:05',
-      reactions: [{ emoji: '😊', count: 6 }],
-    },
-    {
-      id: 'msg3',
-      sender: 'me',
-      senderName: 'You',
-      text: 'Good 😀👍',
-      time: '16:05',
-      reactions: [],
-    },
-    {
-      id: 'msg4',
-      sender: 'ithan',
-      senderName: 'Ithan Adler',
-      text: 'Hi everyone! Please check! 🙏',
-      time: '16:07',
-      image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=400&h=400&fit=crop',
-      reactions: [
-        { emoji: '❤️', count: 6 },
-        { emoji: '👍', count: 13 },
-      ],
-    },
-  ],
-}
+const SENDER_COLORS = {}
 
-const SENDER_COLORS = {
-  'You': '#7c4dff',
-  'Anna Ellis': '#e91e8a',
-  'Ithan Adler': '#00bcd4',
-  'Sasha': '#ff9800',
-}
 
 /* ─── SVG icon components ─── */
 function IconSearch() {
@@ -347,24 +161,53 @@ function IconPhoneMissed() {
   )
 }
 
+function IconUserSearch() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="10" cy="7" r="4" />
+      <path d="M10.3 15H7a4 4 0 0 0-4 4v2" />
+      <circle cx="17" cy="17" r="3" />
+      <path d="m21 21-1.9-1.9" />
+    </svg>
+  )
+}
+
+function IconMessageSquare() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+  )
+}
+
+/* ─── Users and requests are empty — populated from backend ─── */
+
+
 /* ─── Main component ─── */
 export default function ChatPage() {
   const navigate = useNavigate()
   const [currentUser, setCurrentUser] = useState(null)
-  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS)
-  const [activeConvId, setActiveConvId] = useState('group-designers')
-  const [allMessages, setAllMessages] = useState(MOCK_MESSAGES)
+  const [conversations, setConversations] = useState([])
+  const [activeConvId, setActiveConvId] = useState(null)
+  const [allMessages, setAllMessages] = useState({})
   const [messageInput, setMessageInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
-  const [showInfoPanel, setShowInfoPanel] = useState(true)
+  const [showInfoPanel, setShowInfoPanel] = useState(false)
   const [showSidebar, setShowSidebar] = useState(true)
-  const [typingUsers, setTypingUsers] = useState({ 'group-designers': 'Sasha' })
+  const [typingUsers, setTypingUsers] = useState({})
+  const [showFindUsers, setShowFindUsers] = useState(false)
+  const [findUserQuery, setFindUserQuery] = useState('')
+  const [sentRequests, setSentRequests] = useState([])
+  const [findTab, setFindTab] = useState('requests') // 'requests' or 'find'
+  const [incomingRequests, setIncomingRequests] = useState([])
+  const [allUsers, setAllUsers] = useState([])
   const messagesEndRef = useRef(null)
+  const findUserInputRef = useRef(null)
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
     if (!token) {
-      navigate('/login')
+      navigate('/login', { replace: true })
       return
     }
 
@@ -440,6 +283,99 @@ export default function ChatPage() {
     logout()
   }
 
+  /* ─── find users logic ─── */
+  const filteredUsers = findUserQuery.trim()
+    ? allUsers.filter(
+        (u) =>
+          u.name.toLowerCase().includes(findUserQuery.toLowerCase()) ||
+          u.username.toLowerCase().includes(findUserQuery.toLowerCase())
+      )
+    : allUsers
+
+  const handleSendRequest = (user) => {
+    if (sentRequests.includes(user.id)) return
+    setSentRequests((prev) => [...prev, user.id])
+  }
+
+  const handleStartChat = (user) => {
+    // Check if conversation already exists
+    const existingConv = conversations.find(
+      (c) => c.name === user.name && c.type === 'direct'
+    )
+    if (existingConv) {
+      setActiveConvId(existingConv.id)
+      setShowFindUsers(false)
+      setFindUserQuery('')
+      return
+    }
+
+    // Create new conversation
+    const newConv = {
+      id: `dm-${user.id}`,
+      name: user.name,
+      avatar: user.avatar,
+      color: user.color,
+      lastMsg: 'New conversation',
+      time: 'Just now',
+      pinned: false,
+      online: user.online,
+      unread: 0,
+      type: 'direct',
+    }
+    setConversations((prev) => [newConv, ...prev])
+    setActiveConvId(newConv.id)
+    setShowFindUsers(false)
+    setFindUserQuery('')
+    setShowSidebar(false)
+  }
+
+  useEffect(() => {
+    if (showFindUsers && findTab === 'find' && findUserInputRef.current) {
+      findUserInputRef.current.focus()
+    }
+  }, [showFindUsers, findTab])
+
+  const handleAcceptRequest = (req) => {
+    // Create a new conversation with this person
+    const newConv = {
+      id: `dm-${req.id}`,
+      name: req.name,
+      avatar: req.avatar,
+      color: req.color,
+      lastMsg: req.message,
+      time: 'Just now',
+      pinned: false,
+      online: req.online,
+      unread: 1,
+      type: 'direct',
+    }
+    setConversations((prev) => [newConv, ...prev])
+    setIncomingRequests((prev) => prev.filter((r) => r.id !== req.id))
+  }
+
+  const handleDeclineRequest = (reqId) => {
+    setIncomingRequests((prev) => prev.filter((r) => r.id !== reqId))
+  }
+
+  const handleAcceptAll = () => {
+    incomingRequests.forEach((req) => {
+      const newConv = {
+        id: `dm-${req.id}`,
+        name: req.name,
+        avatar: req.avatar,
+        color: req.color,
+        lastMsg: req.message,
+        time: 'Just now',
+        pinned: false,
+        online: req.online,
+        unread: 1,
+        type: 'direct',
+      }
+      setConversations((prev) => [newConv, ...prev])
+    })
+    setIncomingRequests([])
+  }
+
   const totalAttachments = activeConv?.attachments
     ? Object.values(activeConv.attachments).reduce(
         (sum, a) => sum + a.count,
@@ -508,9 +444,21 @@ export default function ChatPage() {
                 Messages <span className="tg-msg-count">({conversations.length})</span>
               </h2>
             </div>
-            <button className="tg-icon-btn" title="New message">
-              <IconEdit />
-            </button>
+            <div className="tg-sidebar-actions">
+              <button
+                className={`tg-icon-btn tg-find-users-btn ${showFindUsers ? 'tg-btn-active' : ''}`}
+                title="Find users & requests"
+                onClick={() => setShowFindUsers(!showFindUsers)}
+              >
+                <IconUserSearch />
+                {incomingRequests.length > 0 && (
+                  <span className="tg-request-badge">{incomingRequests.length}</span>
+                )}
+              </button>
+              <button className="tg-icon-btn" title="New message">
+                <IconEdit />
+              </button>
+            </div>
           </div>
           <div className="tg-search-bar">
             <IconSearch />
@@ -522,6 +470,178 @@ export default function ChatPage() {
             />
           </div>
         </div>
+
+        {/* ─── Find Users / Requests Modal ─── */}
+        {showFindUsers && (
+          <div className="tg-find-overlay">
+            <div className="tg-find-modal">
+              {/* Modal header with close */}
+              <div className="tg-find-header">
+                <h3 className="tg-find-title">
+                  {findTab === 'requests' ? 'Requests' : 'Find People'}
+                </h3>
+                <button
+                  className="tg-icon-btn"
+                  onClick={() => { setShowFindUsers(false); setFindUserQuery(''); }}
+                >
+                  <IconClose />
+                </button>
+              </div>
+
+              {/* Tab bar */}
+              <div className="tg-find-tabs">
+                <button
+                  className={`tg-find-tab ${findTab === 'requests' ? 'tg-find-tab-active' : ''}`}
+                  onClick={() => setFindTab('requests')}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" />
+                    <line x1="18" y1="8" x2="18" y2="14" /><line x1="15" y1="11" x2="21" y2="11" />
+                  </svg>
+                  Requests
+                  {incomingRequests.length > 0 && (
+                    <span className="tg-tab-badge">{incomingRequests.length}</span>
+                  )}
+                </button>
+                <button
+                  className={`tg-find-tab ${findTab === 'find' ? 'tg-find-tab-active' : ''}`}
+                  onClick={() => setFindTab('find')}
+                >
+                  <IconUserSearch />
+                  Find People
+                </button>
+              </div>
+
+              {/* REQUESTS TAB */}
+              {findTab === 'requests' && (
+                <div className="tg-find-results">
+                  {incomingRequests.length === 0 ? (
+                    <div className="tg-find-empty">
+                      <span className="tg-find-empty-icon">✅</span>
+                      <p>No pending requests</p>
+                      <span className="tg-find-empty-sub">You're all caught up!</span>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Accept all bar */}
+                      {incomingRequests.length > 1 && (
+                        <div className="tg-requests-actions-bar">
+                          <span className="tg-requests-count">{incomingRequests.length} pending</span>
+                          <button className="tg-accept-all-btn" onClick={handleAcceptAll}>
+                            Accept all
+                          </button>
+                        </div>
+                      )}
+                      {incomingRequests.map((req) => (
+                        <div key={req.id} className="tg-request-card">
+                          <div className="tg-request-card-top">
+                            <div className="tg-find-user-avatar" style={{ background: req.color }}>
+                              <span>{req.avatar}</span>
+                              {req.online && <span className="tg-online-dot" />}
+                            </div>
+                            <div className="tg-find-user-info">
+                              <span className="tg-find-user-name">{req.name}</span>
+                              <span className="tg-find-user-handle">{req.username}</span>
+                            </div>
+                          </div>
+                          <p className="tg-request-message">"{req.message}"</p>
+                          <div className="tg-request-card-actions">
+                            <button
+                              className="tg-request-accept-btn"
+                              onClick={() => handleAcceptRequest(req)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                              Accept
+                            </button>
+                            <button
+                              className="tg-request-decline-btn"
+                              onClick={() => handleDeclineRequest(req.id)}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                              </svg>
+                              Decline
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              )}
+
+              {/* FIND PEOPLE TAB */}
+              {findTab === 'find' && (
+                <>
+                  <div className="tg-find-search">
+                    <IconSearch />
+                    <input
+                      ref={findUserInputRef}
+                      type="text"
+                      placeholder="Search by name or username..."
+                      value={findUserQuery}
+                      onChange={(e) => setFindUserQuery(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="tg-find-results">
+                    {filteredUsers.length === 0 ? (
+                      <div className="tg-find-empty">
+                        <span className="tg-find-empty-icon">🔍</span>
+                        <p>No users found for "{findUserQuery}"</p>
+                      </div>
+                    ) : (
+                      filteredUsers.map((user) => (
+                        <div key={user.id} className="tg-find-user">
+                          <div className="tg-find-user-avatar" style={{ background: user.color }}>
+                            <span>{user.avatar}</span>
+                            {user.online && <span className="tg-online-dot" />}
+                          </div>
+                          <div className="tg-find-user-info">
+                            <span className="tg-find-user-name">{user.name}</span>
+                            <span className="tg-find-user-handle">{user.username}</span>
+                          </div>
+                          <div className="tg-find-user-actions">
+                            <button
+                              className="tg-find-chat-btn"
+                              onClick={() => handleStartChat(user)}
+                              title="Start chat"
+                            >
+                              <IconMessageSquare />
+                              <span>Chat</span>
+                            </button>
+                            <button
+                              className={`tg-find-request-btn ${sentRequests.includes(user.id) ? 'tg-request-sent' : ''}`}
+                              onClick={() => handleSendRequest(user)}
+                              disabled={sentRequests.includes(user.id)}
+                              title={sentRequests.includes(user.id) ? 'Request sent' : 'Send request'}
+                            >
+                              {sentRequests.includes(user.id) ? (
+                                <>
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                  </svg>
+                                  <span>Sent</span>
+                                </>
+                              ) : (
+                                <>
+                                  <IconUserPlus />
+                                  <span>Add</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* conversation list */}
         <div className="tg-conv-list">
@@ -580,7 +700,7 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* ═══════════ CENTER CHAT ═══════════ */}
+      {/*CENTER CHAT  */}
       <main className="tg-chat">
         {activeConv ? (
           <>

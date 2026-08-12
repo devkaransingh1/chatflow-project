@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import './AuthForm.css'
 
@@ -18,6 +18,14 @@ export default function AuthForm({ mode }) {
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // If already logged in, redirect to chat (prevents accessing login after auth)
+  useEffect(() => {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      navigate('/chat', { replace: true })
+    }
+  }, [navigate])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -108,7 +116,8 @@ export default function AuthForm({ mode }) {
         localStorage.setItem('access_token', data.access)
         localStorage.setItem('refresh_token', data.refresh)
 
-        navigate('/chat')
+        // Replace history so back button won't return to login form
+        navigate('/chat', { replace: true })
       } else {
         // SIGNUP
         const response = await fetch(
@@ -143,8 +152,8 @@ export default function AuthForm({ mode }) {
           return
         }
 
-        // Signup successful
-        navigate('/login')
+        // Signup successful — replace history so user can't go back to filled form
+        navigate('/login', { replace: true })
       }
     } catch (error) {
       console.error(error)

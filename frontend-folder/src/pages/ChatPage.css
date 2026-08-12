@@ -1,8 +1,4 @@
-/* ═══════════════════════════════════════════
-   Telegram-Style Dark Chat UI
-   ═══════════════════════════════════════════ */
 
-/* ─── variables ─── */
 :root {
   --tg-bg-dark: #000307;
   --tg-bg-sidebar: #000000;
@@ -78,9 +74,7 @@
   }
 }
 
-/* ═══════════════════════════════════════════
-   LEFT SIDEBAR
-   ═══════════════════════════════════════════ */
+
 .tg-sidebar {
   width: 360px;
   min-width: 360px;
@@ -379,9 +373,9 @@
   color: var(--tg-accent) !important;
 }
 
-/* ═══════════════════════════════════════════
+/*
    CENTER CHAT
-   ═══════════════════════════════════════════ */
+   */
 .tg-chat {
   flex: 1;
   display: flex;
@@ -729,9 +723,9 @@
   cursor: not-allowed;
 }
 
-/* ═══════════════════════════════════════════
+/*
    RIGHT INFO PANEL
-   ═══════════════════════════════════════════ */
+   */
 .tg-info-panel {
   width: 320px;
   min-width: 320px;
@@ -1004,9 +998,9 @@
   transform: translateX(20px);
 }
 
-/* ═══════════════════════════════════════════
+/*
    RESPONSIVE
-   ═══════════════════════════════════════════ */
+   */
 @media (max-width: 1200px) {
   .tg-info-panel {
     display: none;
@@ -1049,6 +1043,462 @@
   .tg-input-area {
     padding: 6px 10px;
   }
+}
+
+/* ─── sidebar header actions ─── */
+.tg-sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tg-find-users-btn.tg-btn-active {
+  color: var(--tg-accent);
+  background: rgba(106, 179, 243, 0.12);
+}
+
+/* 
+   FIND USERS MODAL
+   */
+.tg-find-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 24px;
+  animation: tg-fade-in 0.2s ease;
+}
+
+@keyframes tg-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tg-find-modal {
+  width: 100%;
+  max-width: 340px;
+  max-height: calc(100vh - 80px);
+  background: #1a2735;
+  border-radius: var(--tg-radius-lg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: tg-modal-slide 0.25s ease;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@keyframes tg-modal-slide {
+  from { opacity: 0; transform: translateY(-12px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tg-find-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+}
+
+.tg-find-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--tg-text-primary);
+}
+
+.tg-find-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 12px 12px;
+  padding: 9px 14px;
+  background: var(--tg-bg-search);
+  border-radius: var(--tg-radius-full);
+  transition: var(--tg-transition);
+}
+
+.tg-find-search:focus-within {
+  background: #2a3844;
+  box-shadow: 0 0 0 2px rgba(106, 179, 243, 0.18);
+}
+
+.tg-find-search svg {
+  color: var(--tg-text-muted);
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+}
+
+.tg-find-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--tg-text-primary);
+  font-size: 0.85rem;
+  min-width: 0;
+}
+
+.tg-find-search input::placeholder {
+  color: var(--tg-text-muted);
+}
+
+.tg-find-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 6px 10px;
+  max-height: 420px;
+}
+
+.tg-find-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--tg-text-muted);
+  text-align: center;
+}
+
+.tg-find-empty-icon {
+  font-size: 2rem;
+}
+
+.tg-find-empty p {
+  font-size: 0.85rem;
+}
+
+/* user item */
+.tg-find-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: var(--tg-radius-md);
+  transition: background var(--tg-transition);
+  cursor: default;
+}
+
+.tg-find-user:hover {
+  background: var(--tg-bg-hover);
+}
+
+.tg-find-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.tg-find-user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tg-find-user-name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--tg-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tg-find-user-handle {
+  font-size: 0.75rem;
+  color: var(--tg-text-muted);
+}
+
+.tg-find-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* chat button */
+.tg-find-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(106, 179, 243, 0.12);
+  border: 1px solid rgba(106, 179, 243, 0.2);
+  border-radius: var(--tg-radius-full);
+  color: var(--tg-accent);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tg-transition);
+  font-family: inherit;
+}
+
+.tg-find-chat-btn:hover {
+  background: rgba(106, 179, 243, 0.22);
+  border-color: rgba(106, 179, 243, 0.35);
+  transform: translateY(-1px);
+}
+
+/* add/request button */
+.tg-find-request-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(77, 205, 122, 0.1);
+  border: 1px solid rgba(77, 205, 122, 0.2);
+  border-radius: var(--tg-radius-full);
+  color: var(--tg-accent-green);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tg-transition);
+  font-family: inherit;
+}
+
+.tg-find-request-btn:hover:not(:disabled) {
+  background: rgba(77, 205, 122, 0.2);
+  border-color: rgba(77, 205, 122, 0.35);
+  transform: translateY(-1px);
+}
+
+.tg-find-request-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.tg-request-sent {
+  background: rgba(77, 205, 122, 0.06) !important;
+  border-color: rgba(77, 205, 122, 0.12) !important;
+  color: rgba(77, 205, 122, 0.6) !important;
+  cursor: default !important;
+}
+
+/* ─── notification badge on icon ─── */
+.tg-find-users-btn {
+  position: relative;
+}
+
+.tg-request-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: var(--tg-radius-full);
+  background: #ef5350;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  pointer-events: none;
+  animation: tg-badge-pop 0.3s ease;
+}
+
+@keyframes tg-badge-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ─── tabs ─── */
+.tg-find-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--tg-border);
+  margin: 0 12px;
+  gap: 0;
+}
+
+.tg-find-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--tg-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tg-transition);
+  font-family: inherit;
+}
+
+.tg-find-tab:hover {
+  color: var(--tg-text-secondary);
+}
+
+.tg-find-tab-active {
+  color: var(--tg-accent) !important;
+  border-bottom-color: var(--tg-accent);
+}
+
+.tg-find-tab svg {
+  width: 15px;
+  height: 15px;
+}
+
+.tg-tab-badge {
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--tg-radius-full);
+  background: #ef5350;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  line-height: 1;
+}
+
+/* ─── requests actions bar ─── */
+.tg-requests-actions-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+}
+
+.tg-requests-count {
+  font-size: 0.78rem;
+  color: var(--tg-text-muted);
+  font-weight: 500;
+}
+
+.tg-accept-all-btn {
+  padding: 5px 14px;
+  background: rgba(106, 179, 243, 0.12);
+  border: 1px solid rgba(106, 179, 243, 0.2);
+  border-radius: var(--tg-radius-full);
+  color: var(--tg-accent);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tg-transition);
+  font-family: inherit;
+}
+
+.tg-accept-all-btn:hover {
+  background: rgba(106, 179, 243, 0.22);
+  border-color: rgba(106, 179, 243, 0.35);
+}
+
+/* ─── request card ─── */
+.tg-request-card {
+  padding: 12px;
+  margin: 4px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--tg-border);
+  border-radius: var(--tg-radius-md);
+  transition: background var(--tg-transition);
+  animation: tg-msg-in 0.25s ease;
+}
+
+.tg-request-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tg-request-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.tg-request-message {
+  font-size: 0.8rem;
+  color: var(--tg-text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--tg-radius-sm);
+  border-left: 2px solid var(--tg-accent);
+  margin-bottom: 10px;
+}
+
+.tg-request-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tg-request-accept-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(77, 205, 122, 0.12);
+  border: 1px solid rgba(77, 205, 122, 0.25);
+  border-radius: var(--tg-radius-full);
+  color: var(--tg-accent-green);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tg-transition);
+  font-family: inherit;
+}
+
+.tg-request-accept-btn:hover {
+  background: rgba(77, 205, 122, 0.22);
+  border-color: rgba(77, 205, 122, 0.4);
+  transform: translateY(-1px);
+}
+
+.tg-request-decline-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: rgba(239, 83, 80, 0.08);
+  border: 1px solid rgba(239, 83, 80, 0.15);
+  border-radius: var(--tg-radius-full);
+  color: var(--tg-text-missed);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--tg-transition);
+  font-family: inherit;
+}
+
+.tg-request-decline-btn:hover {
+  background: rgba(239, 83, 80, 0.18);
+  border-color: rgba(239, 83, 80, 0.3);
+  transform: translateY(-1px);
+}
+
+.tg-find-empty-sub {
+  font-size: 0.78rem;
+  color: var(--tg-text-muted);
+  margin-top: -2px;
 }
 
 /* ─── scrollbar ─── */
