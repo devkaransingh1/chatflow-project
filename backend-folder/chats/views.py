@@ -8,6 +8,8 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import ChatRequest
 from .serializers import ChatRequestSerializer
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class SendChatRequestView(generics.CreateAPIView):
@@ -62,3 +64,31 @@ class ContactListView(APIView):
             })
 
         return Response(contacts)
+
+
+class UserSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        username = request.query_params.get("username", "").strip()
+
+        if not username:
+            return Response([])
+
+        users = User.objects.filter(
+            username__icontains=username
+        ).exclude(
+            id=request.user.id
+        )[:10]
+
+        data = [
+    {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "is_online": user.is_online,
+    }
+    for user in users
+]
+
+        return Response(data)
