@@ -69,3 +69,54 @@ export function logout() {
   localStorage.removeItem('refresh_token')
   window.location.href = '/login'
 }
+
+
+export async function searchUsers(username) {
+  const response = await fetchWithAuth(
+    `/api/chats/users/search/?username=${encodeURIComponent(username)}`
+  )
+
+  if (!response || !response.ok) {
+    return []
+  }
+
+  return response.json()
+}
+
+
+export async function sendChatRequest(receiverUsername) {
+  const response = await fetchWithAuth(
+    '/api/chats/requests/',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        receiver_username: receiverUsername,
+      }),
+    }
+  )
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      data.detail ||
+      data.receiver_username?.[0] ||
+      'Failed to send chat request'
+    )
+  }
+
+  return data
+}
+
+
+export async function getContacts() {
+  const response = await fetchWithAuth(
+    '/api/chats/contacts/'
+  )
+
+  if (!response || !response.ok) {
+    return []
+  }
+
+  return response.json()
+}

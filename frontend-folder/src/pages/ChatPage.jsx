@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getCurrentUser, logout } from '../api'
+import { searchUsers, sendChatRequest, getContacts } from '../api'
 import './ChatPage.css'
 
 /* ─── No mock data — only real registered users ─── */
@@ -203,6 +204,8 @@ export default function ChatPage() {
   const [allUsers, setAllUsers] = useState([])
   const messagesEndRef = useRef(null)
   const findUserInputRef = useRef(null)
+const [filteredUsers, setFilteredUsers] = useState([])
+const [isSearchingUsers, setIsSearchingUsers] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
@@ -284,18 +287,20 @@ export default function ChatPage() {
   }
 
   /* ─── find users logic ─── */
-  const filteredUsers = findUserQuery.trim()
-    ? allUsers.filter(
-        (u) =>
-          u.name.toLowerCase().includes(findUserQuery.toLowerCase()) ||
-          u.username.toLowerCase().includes(findUserQuery.toLowerCase())
-      )
-    : allUsers
+  
 
-  const handleSendRequest = (user) => {
-    if (sentRequests.includes(user.id)) return
+  const handleSendRequest = async (user) => {
+  if (sentRequests.includes(user.id)) return
+
+  try {
+    await sendChatRequest(user.username)
+
     setSentRequests((prev) => [...prev, user.id])
+  } catch (error) {
+    console.error('Failed to send chat request:', error)
+    alert(error.message)
   }
+}
 
   const handleStartChat = (user) => {
     // Check if conversation already exists
@@ -329,6 +334,43 @@ export default function ChatPage() {
     setShowSidebar(false)
   }
 
+  useEffect(() => {
+  const search = async () => {
+    const query = findUserQuery.trim()
+
+    if (!query) {
+      setFilteredUsers([])
+      return
+    }
+
+    setIsSearchingUsers(true)
+
+    try {
+      const users = await searchUsers(query)
+
+      const formattedUsers = users.map((user) => ({
+        id: user.id,
+        name: user.username,
+        username: user.username,
+        email: user.email,
+        color: '#6c5ce7',
+        avatar: user.username.charAt(0).toUpperCase(),
+        online: user.is_online,
+      }))
+
+      setFilteredUsers(formattedUsers)
+    } catch (error) {
+      console.error('User search failed:', error)
+      setFilteredUsers([])
+    } finally {
+      setIsSearchingUsers(false)
+    }
+  }
+
+  const timeout = setTimeout(search, 300)
+
+  return () => clearTimeout(timeout)
+}, [findUserQuery])
   useEffect(() => {
     if (showFindUsers && findTab === 'find' && findUserInputRef.current) {
       findUserInputRef.current.focus()
