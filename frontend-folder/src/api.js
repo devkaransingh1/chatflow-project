@@ -58,18 +58,29 @@ export async function getCurrentUser() {
 
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
+    const savedUsername = localStorage.getItem('chatflow_username')
+
     return {
-      id: payload.user_id,
-      username: payload.username || `User_${payload.user_id}`,
-    };
+      id: payload.user_id || payload.id,
+      username:
+        savedUsername ||
+        payload.username ||
+        payload.user_name ||
+        payload.name ||
+        `User_${payload.user_id || payload.id || 'unknown'}`,
+    }
   } catch {
-    return null;
+    return {
+      id: 0,
+      username: localStorage.getItem('chatflow_username') || 'User',
+    }
   }
 }
 
 export function logout() {
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+  localStorage.removeItem("chatflow_username");
   window.location.href = "/login";
 }
 

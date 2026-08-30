@@ -476,8 +476,32 @@ export default function ChatPage() {
     async function loadAcceptedUsers() {
       try {
         const contacts = await getContacts();
-        const usernames = contacts.map((contact) => contact.username);
-        setAcceptedUsers(usernames);
+
+        const formattedContacts = contacts.map((contact, index) => ({
+          id: `dm-${contact.username}`,
+          name: contact.username,
+          username: contact.username,
+          email: contact.email,
+          avatar: contact.username?.charAt(0)?.toUpperCase() || "?",
+          color: ["#6c5ce7", "#00b894", "#fd79a8", "#0984e3", "#f39c12"][
+            index % 5
+          ],
+          lastMsg: "Start chatting",
+          time: "Just now",
+          pinned: false,
+          online: Boolean(contact.is_online),
+          unread: 0,
+          type: "direct",
+        }));
+
+        setAcceptedUsers(formattedContacts);
+        setConversations((prev) => {
+          const existing = new Map(prev.map((c) => [c.id, c]));
+          formattedContacts.forEach((contact) =>
+            existing.set(contact.id, contact),
+          );
+          return [...existing.values()];
+        });
       } catch (error) {
         console.error("Failed to load contacts:", error);
         setAcceptedUsers([]);
@@ -780,6 +804,33 @@ export default function ChatPage() {
               </button>
             </div>
           </div>
+
+          <div
+            className="tg-profile-card"
+            onClick={() => navigate('/profile')}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                navigate('/profile');
+              }
+            }}
+          >
+            <div
+              className="tg-profile-avatar"
+              aria-label="User profile picture"
+            >
+              {currentUser?.username?.charAt(0)?.toUpperCase() || "U"}
+            </div>
+            <div className="tg-profile-text">
+              <span className="tg-profile-greeting">Hello</span>
+              <strong className="tg-profile-name">
+                {currentUser?.username || "User"}
+              </strong>
+            </div>
+          </div>
+
           <div className="tg-search-bar">
             <IconSearch />
             <input

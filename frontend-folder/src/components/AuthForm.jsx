@@ -112,9 +112,10 @@ export default function AuthForm({ mode }) {
           return
         }
 
-        // Save JWT tokens
+        // Save JWT tokens and real username for the UI
         localStorage.setItem('access_token', data.access)
         localStorage.setItem('refresh_token', data.refresh)
+        localStorage.setItem('chatflow_username', formData.username.trim())
 
         // Replace history so back button won't return to login form
         navigate('/chat', { replace: true })
