@@ -1,6 +1,5 @@
 from django.urls import path
-from .views import SendChatRequestView, ContactListView, UserSearchView, IncomingRequestView, AcceptChatRequestView, RejectChatRequestView
-from .views import FetchMessageView
+from .views import SendChatRequestView, ContactListView, UserSearchView, IncomingRequestView, AcceptChatRequestView, RejectChatRequestView, SendMessageView, FetchMessageView
 
 urlpatterns = [
     path(
@@ -28,6 +27,7 @@ path(
 path("messages/<str:username>/",
      FetchMessageView.as_view(),
      name="fetch-user-messages"
-     )
+    ),
+path("messages/", SendMessageView.as_view(), name="send-message")
 ]
 

@@ -34,6 +34,7 @@ class ContactListView(APIView):
             sender=user,
             status="accepted"
         ).values(
+            "receiver__id",
             "receiver__username",
             "receiver__email",
             "receiver__is_online"
@@ -43,6 +44,7 @@ class ContactListView(APIView):
             receiver=user,
             status="accepted"
         ).values(
+            "sender__id",
             "sender__username",
             "sender__email",
             "sender__is_online"
@@ -52,6 +54,7 @@ class ContactListView(APIView):
 
         for contact in sent_contacts:
             contacts.append({
+                "id": contact["receiver__id"],
                 "username": contact["receiver__username"],
                 "email": contact["receiver__email"],
                 "is_online": contact["receiver__is_online"],
@@ -59,6 +62,7 @@ class ContactListView(APIView):
 
         for contact in received_contacts:
             contacts.append({
+                "id": contact["sender__id"],
                 "username": contact["sender__username"],
                 "email": contact["sender__email"],
                 "is_online": contact["sender__is_online"],
@@ -108,6 +112,7 @@ class IncomingRequestView(APIView):
         for chat_request in requests:
             data.append({
                 "id":chat_request.id,
+                "sender_id": chat_request.sender_id,
                 "sender_username":chat_request.sender.username,
                 "sender_email":chat_request.sender.email,
                 "created_at": chat_request.created_at
@@ -166,24 +171,6 @@ class RejectChatRequestView(APIView):
             "status": chat_request.status,
             "message": "Chat request rejected."
         })
-
-class SendMessageView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self,request):
-
-        receiver = request.data["receiver"]
-        content = request.data["content"]
-
-        message = Messages.objects.create(
-            sender=request.user,
-            receiver_id=receiver,
-            content=content
-        )
-
-        return Response(ChatSerializer(message).data)
-
-
 
 class SendMessageView(APIView):
     permission_classes = [IsAuthenticated]
@@ -251,7 +238,7 @@ class FetchMessageView(APIView):
     def get(self,request,username):
 
         try:
-            other_user = User.object.get(username=username)
+            other_user = User.objects.get(username=username)
         except User.DoesNotExist:
             return Response(
                 {
@@ -261,8 +248,8 @@ class FetchMessageView(APIView):
             )
 
         messages = Messages.objects.filter(
-            Q(sender=request.user , receiver=other_user) |
-            Q(sender=other_user, reveiver=request.user)
+            Q(sender=request.user, receiver=other_user) |
+            Q(sender=other_user, receiver=request.user)
         ).order_by("created_at")
 
         serializer= ChatSerializer(messages,many=True)

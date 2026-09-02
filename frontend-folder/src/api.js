@@ -58,7 +58,7 @@ export async function getCurrentUser() {
 
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
-    const savedUsername = localStorage.getItem('chatflow_username')
+    const savedUsername = localStorage.getItem("chatflow_username");
 
     return {
       id: payload.user_id || payload.id,
@@ -67,13 +67,13 @@ export async function getCurrentUser() {
         payload.username ||
         payload.user_name ||
         payload.name ||
-        `User_${payload.user_id || payload.id || 'unknown'}`,
-    }
+        `User_${payload.user_id || payload.id || "unknown"}`,
+    };
   } catch {
     return {
       id: 0,
-      username: localStorage.getItem('chatflow_username') || 'User',
-    }
+      username: localStorage.getItem("chatflow_username") || "User",
+    };
   }
 }
 
@@ -125,6 +125,45 @@ export async function getContacts() {
   }
 
   return response.json();
+}
+
+export async function getMessages(username) {
+  const response = await fetchWithAuth(
+    `/api/chats/messages/${encodeURIComponent(username)}/`,
+  );
+
+  if (!response || !response.ok) {
+    const error = new Error(
+      response?.status === 404
+        ? "User or conversation not found."
+        : "Failed to load conversation.",
+    );
+    error.status = response?.status;
+    throw error;
+  }
+
+  return response.json();
+}
+
+export async function sendMessage(receiver, content) {
+  const response = await fetchWithAuth("/api/chats/messages/", {
+    method: "POST",
+    body: JSON.stringify({ receiver, content }),
+  });
+  const data = response ? await response.json() : {};
+
+  if (!response || !response.ok) {
+    const error = new Error(
+      data.detail ||
+        data.content?.[0] ||
+        data.receiver?.[0] ||
+        "Failed to send message.",
+    );
+    error.status = response?.status;
+    throw error;
+  }
+
+  return data;
 }
 
 export async function getIncomingRequests() {
