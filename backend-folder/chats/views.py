@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
 from rest_framework.response import Response
 from .models import ChatRequest
 # Create your views here.
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
-from .models import ChatRequest
-from .serializers import ChatRequestSerializer
+from .models import ChatRequest, Messages
+from .serializers import ChatRequestSerializer,ChatSerializer
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -166,3 +167,103 @@ class RejectChatRequestView(APIView):
             "message": "Chat request rejected."
         })
 
+class SendMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self,request):
+
+        receiver = request.data["receiver"]
+        content = request.data["content"]
+
+        message = Messages.objects.create(
+            sender=request.user,
+            receiver_id=receiver,
+            content=content
+        )
+
+        return Response(ChatSerializer(message).data)
+
+
+
+class SendMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+
+        receiver_id = request.data.get("receiver")
+        content = request.data.get("content")
+
+        # Check required fields
+        if not receiver_id:
+            return Response(
+                {"receiver": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not content:
+            return Response(
+                {"content": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # User cannot message themselves
+        if str(receiver_id) == str(request.user.id):
+            return Response(
+                {"receiver": "You cannot message yourself."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Check whether an accepted friendship exists
+        are_friends = ChatRequest.objects.filter(
+            Q(
+                sender=request.user,
+                receiver_id=receiver_id
+            ) |
+            Q(
+                sender_id=receiver_id,
+                receiver=request.user
+            ),
+            status="accepted"
+        ).exists()
+
+        if not are_friends:
+            return Response(
+                {"detail": "You can only message accepted contacts."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Create message
+        message = Messages.objects.create(
+            sender=request.user,
+            receiver_id=receiver_id,
+            content=content
+        )
+
+        return Response(
+            ChatSerializer(message).data,
+            status=status.HTTP_201_CREATED
+        )
+
+
+class FetchMessageView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,username):
+
+        try:
+            other_user = User.object.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {
+                    "detail":"user not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        messages = Messages.objects.filter(
+            Q(sender=request.user , receiver=other_user) |
+            Q(sender=other_user, reveiver=request.user)
+        ).order_by("created_at")
+
+        serializer= ChatSerializer(messages,many=True)
+        return Response(serializer.data)
