@@ -92,3 +92,77 @@ class UserSearchView(APIView):
 ]
 
         return Response(data)
+
+class IncomingRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request):
+        requests = ChatRequest.objects.filter(
+            receiver=request.user,
+            status='pending'
+        ).select_related("sender")
+
+        data = []
+
+        for chat_request in requests:
+            data.append({
+                "id":chat_request.id,
+                "sender_username":chat_request.sender.username,
+                "sender_email":chat_request.sender.email,
+                "created_at": chat_request.created_at
+            })
+
+        return Response(data)
+
+
+class AcceptChatRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            chat_request = ChatRequest.objects.get(
+                id=pk,
+                receiver=request.user,
+                status="pending"
+            )
+        except ChatRequest.DoesNotExist:
+            return Response(
+                {"detail": "Pending chat request not found."},
+                status=404
+            )
+
+        chat_request.status = "accepted"
+        chat_request.save()
+
+        return Response({
+            "id": chat_request.id,
+            "status": chat_request.status,
+            "message": "Chat request accepted."
+        })
+
+
+class RejectChatRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            chat_request = ChatRequest.objects.get(
+                id=pk,
+                receiver=request.user,
+                status="pending"
+            )
+        except ChatRequest.DoesNotExist:
+            return Response(
+                {"detail": "Pending chat request not found."},
+                status=404
+            )
+
+        chat_request.status = "rejected"
+        chat_request.save()
+
+        return Response({
+            "id": chat_request.id,
+            "status": chat_request.status,
+            "message": "Chat request rejected."
+        })
+
