@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "../api";
+import { getCurrentUser, logout, getMessages, sendMessage } from "../api";
 import {
   searchUsers,
   sendChatRequest,
@@ -426,6 +426,7 @@ export default function ChatPage() {
   const findUserInputRef = useRef(null);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isSearchingUsers, setIsSearchingUsers] = useState(false);
+  const [messageError, setMessageError] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -456,6 +457,7 @@ export default function ChatPage() {
 
         const formattedRequests = requests.map((req) => ({
           id: req.id,
+          userId: req.sender_id,
           name: req.sender_username,
           username: req.sender_username,
           email: req.sender_email,
@@ -478,7 +480,8 @@ export default function ChatPage() {
         const contacts = await getContacts();
 
         const formattedContacts = contacts.map((contact, index) => ({
-          id: `dm-${contact.username}`,
+          id: `dm-${contact.id || contact.username}`,
+          userId: contact.id,
           name: contact.username,
           username: contact.username,
           email: contact.email,
@@ -515,6 +518,48 @@ export default function ChatPage() {
   const activeConv = conversations.find((c) => c.id === activeConvId);
   const chatMessages = activeConvId ? allMessages[activeConvId] || [] : [];
 
+  useEffect(() => {
+    if (!activeConv?.username || !currentUser) return;
+
+    let cancelled = false;
+    setMessageError("");
+
+    getMessages(activeConv.username)
+      .then((messages) => {
+        if (cancelled) return;
+
+        const formattedMessages = messages.map((message) => ({
+          ...message,
+          senderName:
+            String(message.sender) === String(currentUser.id)
+              ? "You"
+              : activeConv.name,
+          text: message.content,
+          time: new Date(message.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          }),
+          reactions: [],
+        }));
+
+        setAllMessages((prev) => ({
+          ...prev,
+          [activeConv.id]: formattedMessages,
+        }));
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setAllMessages((prev) => ({ ...prev, [activeConv.id]: [] }));
+          setMessageError(error.message);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeConv, currentUser]);
+
   const pinnedConversations = conversations.filter((c) => c.pinned);
   const allConversations = conversations.filter((c) => !c.pinned);
 
@@ -525,39 +570,41 @@ export default function ChatPage() {
     c.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     e.preventDefault();
-    if (!messageInput.trim() || !activeConvId) return;
+    const content = messageInput.trim();
+    if (!content || !activeConvId || !activeConv?.userId) return;
 
-    const newMsg = {
-      id: `msg-${Date.now()}`,
-      sender: "me",
-      senderName: "You",
-      text: messageInput.trim(),
-      time: new Date().toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }),
-      reactions: [],
-    };
+    setMessageError("");
+    try {
+      const message = await sendMessage(activeConv.userId, content);
+      const newMsg = {
+        ...message,
+        senderName: "You",
+        text: message.content,
+        time: new Date(message.created_at).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
+        reactions: [],
+      };
 
-    const updatedMsgs = {
-      ...allMessages,
-      [activeConvId]: [...(allMessages[activeConvId] || []), newMsg],
-    };
-    setAllMessages(updatedMsgs);
-
-    // Update last message in conversation list
-    setConversations((prev) =>
-      prev.map((c) =>
-        c.id === activeConvId
-          ? { ...c, lastMsg: messageInput.trim(), time: "Just now" }
-          : c,
-      ),
-    );
-
-    setMessageInput("");
+      setAllMessages((prev) => ({
+        ...prev,
+        [activeConvId]: [...(prev[activeConvId] || []), newMsg],
+      }));
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === activeConvId
+            ? { ...c, lastMsg: content, time: "Just now" }
+            : c,
+        ),
+      );
+      setMessageInput("");
+    } catch (error) {
+      setMessageError(error.message);
+    }
   };
 
   const handleSelectChat = (id) => {
@@ -599,6 +646,7 @@ export default function ChatPage() {
     // Create new conversation
     const newConv = {
       id: `dm-${user.id}`,
+      userId: user.id,
       name: user.name,
       avatar: user.avatar,
       color: user.color,
@@ -665,6 +713,7 @@ export default function ChatPage() {
 
       const newConv = {
         id: `dm-${req.id}`,
+        userId: req.userId,
         name: req.name,
         avatar: req.avatar,
         color: req.color,
@@ -701,6 +750,7 @@ export default function ChatPage() {
     incomingRequests.forEach((req) => {
       const newConv = {
         id: `dm-${req.id}`,
+        userId: req.userId,
         name: req.name,
         avatar: req.avatar,
         color: req.color,
@@ -807,13 +857,13 @@ export default function ChatPage() {
 
           <div
             className="tg-profile-card"
-            onClick={() => navigate('/profile')}
+            onClick={() => navigate("/profile")}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                navigate('/profile');
+                navigate("/profile");
               }
             }}
           >
@@ -1244,6 +1294,11 @@ export default function ChatPage() {
 
             {/* messages area */}
             <div className="tg-messages">
+              {messageError && (
+                <div className="tg-messages-empty">
+                  <p>{messageError}</p>
+                </div>
+              )}
               {chatMessages.length === 0 ? (
                 <div className="tg-messages-empty">
                   <div className="tg-empty-icon">💬</div>
@@ -1254,19 +1309,21 @@ export default function ChatPage() {
                 chatMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`tg-msg ${msg.sender === "me" ? "tg-msg-sent" : "tg-msg-received"}`}
+                    className={`tg-msg ${String(msg.sender) === String(currentUser.id) || msg.sender === "me" ? "tg-msg-sent" : "tg-msg-received"}`}
                   >
-                    {msg.sender !== "me" && (
-                      <span
-                        className="tg-msg-sender"
-                        style={{
-                          color: SENDER_COLORS[msg.senderName] || "#7c4dff",
-                        }}
-                      >
-                        {msg.senderName}
-                      </span>
-                    )}
-                    {msg.sender === "me" && (
+                    {String(msg.sender) !== String(currentUser.id) &&
+                      msg.sender !== "me" && (
+                        <span
+                          className="tg-msg-sender"
+                          style={{
+                            color: SENDER_COLORS[msg.senderName] || "#7c4dff",
+                          }}
+                        >
+                          {msg.senderName}
+                        </span>
+                      )}
+                    {(String(msg.sender) === String(currentUser.id) ||
+                      msg.sender === "me") && (
                       <span className="tg-msg-sender-right">
                         <span
                           className="tg-msg-sender-name"
@@ -1279,11 +1336,12 @@ export default function ChatPage() {
                         <span className="tg-msg-time">{msg.time}</span>
                       </span>
                     )}
-                    {msg.sender !== "me" && (
-                      <span className="tg-msg-time tg-msg-time-left">
-                        {msg.time}
-                      </span>
-                    )}
+                    {String(msg.sender) !== String(currentUser.id) &&
+                      msg.sender !== "me" && (
+                        <span className="tg-msg-time tg-msg-time-left">
+                          {msg.time}
+                        </span>
+                      )}
                     <p className="tg-msg-text">{msg.text}</p>
                     {msg.image && (
                       <div className="tg-msg-image">

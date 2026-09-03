@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import ChatRequest
 from users.models import User
+from .models import Messages
 
 
 class ChatRequestSerializer(serializers.ModelSerializer):
@@ -63,6 +64,21 @@ class ChatRequestSerializer(serializers.ModelSerializer):
 
 
 class ContactSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
     username = serializers.CharField()
     email = serializers.EmailField()
     is_online = serializers.BooleanField()
+
+
+class ChatSerializer(serializers.ModelSerializer):
+     class Meta:
+         model = Messages
+         fields = ["id", "sender", "receiver", "content", "created_at"]
+         read_only_fields = ["id", "sender", "created_at"]
+
+     def validate_content(self, value):
+        if not value.strip():
+            raise serializers.ValidationError(
+                "Message cannot be empty."
+            )
+        return value    
