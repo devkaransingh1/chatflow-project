@@ -11,11 +11,11 @@ import {
 } from "../api";
 import "./ChatPage.css";
 
-/* ─── No mock data — only real registered users ─── */
+
 
 const SENDER_COLORS = {};
 
-/* ─── SVG icon components ─── */
+
 function IconSearch() {
   return (
     <svg
