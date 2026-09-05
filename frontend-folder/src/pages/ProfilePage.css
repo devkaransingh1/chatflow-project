@@ -1,28 +1,477 @@
-.profile-page {
+
+.pp-page {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #000307;
+  color: #f5f5f5;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.pp-page.pp-loaded {
+  opacity: 1;
+}
+
+/* -- Ambient glow blobs -- */
+.pp-glow {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(120px);
+  z-index: 0;
+}
+.pp-glow-1 {
+  width: 480px;
+  height: 480px;
+  top: -120px;
+  left: -100px;
+  background: radial-gradient(circle, rgba(106, 179, 243, 0.12) 0%, transparent 70%);
+}
+.pp-glow-2 {
+  width: 400px;
+  height: 400px;
+  bottom: -80px;
+  right: -60px;
+  background: radial-gradient(circle, rgba(142, 110, 245, 0.1) 0%, transparent 70%);
+}
+
+/* -- Header -- */
+.pp-header {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 20px 8px;
+  position: relative;
+  z-index: 2;
+}
+.pp-back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #000307;
-  color: #f5f5f5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: rgba(255, 255, 255, 0.04);
+  color: #9ca3af;
+  transition: all 0.22s ease;
+}
+.pp-back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: translateX(-2px);
+}
+.pp-header-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #6ab3f3, #8e6ef5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.pp-header-spacer {
+  flex: 1;
 }
 
-.profile-page-shell {
-  width: min(520px, 90vw);
-  padding: 32px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+/* -- Card -- */
+.pp-card {
+  width: min(520px, 92vw);
+  margin: 16px auto 40px;
+  padding: 32px 28px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 22px;
   background: rgba(255, 255, 255, 0.02);
-  text-align: center;
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: pp-card-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
-.profile-page-shell h1 {
-  margin: 0 0 10px;
-  font-size: 2rem;
+@keyframes pp-card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.profile-page-shell p {
-  margin: 0;
-  color: #7e919d;
+/* === Photo Section === */
+.pp-photo-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.pp-avatar-wrapper {
+  position: relative;
+}
+
+.pp-avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6ab3f3, #8e6ef5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 8px 32px rgba(106, 179, 243, 0.22),
+    0 0 0 3px rgba(255, 255, 255, 0.04);
+  transition: box-shadow 0.3s ease, transform 0.25s ease;
+}
+.pp-avatar:hover {
+  box-shadow:
+    0 12px 40px rgba(106, 179, 243, 0.3),
+    0 0 0 3px rgba(255, 255, 255, 0.1);
+  transform: scale(1.03);
+}
+
+.pp-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.pp-avatar-initial {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #fff;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.pp-avatar-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  color: #fff;
+}
+.pp-avatar:hover .pp-avatar-overlay {
+  opacity: 1;
+}
+
+.pp-file-input {
+  display: none;
+}
+
+/* -- Photo action menu -- */
+.pp-photo-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f1923;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 180px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+  animation: pp-menu-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes pp-menu-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-6px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.pp-photo-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: transparent;
+  color: #d1d5db;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.pp-photo-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.pp-photo-menu-danger {
+  color: #f87171;
+}
+.pp-photo-menu-danger:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: #fca5a5;
+}
+
+/* === Field Sections === */
+.pp-field {
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.pp-field:last-of-type {
+  border-bottom: none;
+}
+
+.pp-field-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+/* Display row */
+.pp-field-display-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.pp-field-display-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.pp-field-display-row:hover .pp-field-edit-hint {
+  opacity: 1;
+  color: #6ab3f3;
+}
+
+.pp-field-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  word-break: break-word;
+  line-height: 1.5;
+}
+.pp-field-muted {
+  color: #6b7280;
+  font-weight: 400;
+}
+.pp-placeholder {
+  color: #4b5563;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.pp-field-edit-hint {
+  flex-shrink: 0;
+  color: #4b5563;
+  opacity: 0;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+/* Edit row */
+.pp-field-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pp-field-edit-col {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pp-field-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f5f5;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.pp-field-input:focus {
+  border-color: rgba(106, 179, 243, 0.5);
+  box-shadow: 0 0 0 3px rgba(106, 179, 243, 0.1);
+}
+
+.pp-field-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f5f5;
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 72px;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.pp-field-textarea:focus {
+  border-color: rgba(106, 179, 243, 0.5);
+  box-shadow: 0 0 0 3px rgba(106, 179, 243, 0.1);
+}
+.pp-field-textarea::placeholder,
+.pp-field-input::placeholder {
+  color: #4b5563;
+}
+
+.pp-textarea-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.pp-char-count {
+  font-size: 0.72rem;
+  color: #4b5563;
+  font-variant-numeric: tabular-nums;
+}
+.pp-textarea-btns {
+  display: flex;
+  gap: 6px;
+}
+
+/* Icon buttons (save / cancel) */
+.pp-btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.pp-btn-save {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+.pp-btn-save:hover {
+  background: rgba(16, 185, 129, 0.25);
+  color: #6ee7b7;
+  transform: scale(1.08);
+}
+.pp-btn-cancel {
+  background: rgba(255, 255, 255, 0.05);
+  color: #9ca3af;
+}
+.pp-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+/* -- Read-only field -- */
+.pp-field-readonly {
+  cursor: default;
+}
+.pp-field-readonly .pp-field-value {
+  padding: 10px 14px;
+}
+
+/* -- Divider -- */
+.pp-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+  margin: 6px 0;
+}
+
+/* -- Logout -- */
+.pp-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 0;
+  border-radius: 14px;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: all 0.22s ease;
+}
+.pp-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.28);
+  color: #fca5a5;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.12);
+}
+
+/* -- Toast -- */
+.pp-toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a2e3d;
+  border: 1px solid rgba(106, 179, 243, 0.15);
+  color: #e5e7eb;
+  padding: 12px 24px;
+  border-radius: 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  animation: pp-toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+}
+@keyframes pp-toast-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(16px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+/* -- Responsive -- */
+@media (max-width: 500px) {
+  .pp-card {
+    padding: 24px 18px 22px;
+    border-radius: 18px;
+    margin: 12px auto 32px;
+  }
+  .pp-avatar {
+    width: 96px;
+    height: 96px;
+  }
+  .pp-avatar-initial {
+    font-size: 2.2rem;
+  }
+  .pp-header {
+    padding: 16px 16px 6px;
+  }
 }
